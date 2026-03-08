@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NUST Campus Event Booking System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       #0f1923;
+    --paper:     #f5f0e8;
+    --cream:     #faf7f2;
+    --rust:      #c44b2b;
+    --rust-dark: #9e3620;
+    --rust-pale: #f5e8e3;
+    --teal:      #1d6b6b;
+    --teal-pale: #e3f0f0;
+    --gold:      #c9962a;
+    --gold-pale: #fdf3dc;
+    --muted:     #6b6355;
+    --border:    #d9d0c0;
+    --white:     #ffffff;
+    --shadow:    0 2px 12px rgba(15,25,35,0.08);
+    --shadow-lg: 0 8px 32px rgba(15,25,35,0.14);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-logo {
+    width: 34px; height: 34px;
+    background: var(--rust);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: white;
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+  .nav-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    letter-spacing: 0.01em;
+    color: var(--paper);
+  }
+  .nav-title span { color: var(--gold); }
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: rgba(245,240,232,0.65);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+  }
+  .nav-tab:hover { background: rgba(255,255,255,0.08); color: var(--paper); }
+  .nav-tab.active { background: var(--rust); color: white; }
+  .nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(245,240,232,0.7);
+  }
+  .nav-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    background: var(--cream);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 2rem 24px;
+  }
+  .page-header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .page-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .page-header p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 10px 12px 10px 38px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.18s;
+  }
+  .search-input:focus { border-color: var(--teal); }
+  .filter-select {
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
+    min-width: 140px;
+  }
+
+  /* ── EVENT CARDS ── */
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 20px;
+  }
+  .event-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+    display: flex;
+    flex-direction: column;
+  }
+  .event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--rust);
+  }
+  .card-banner {
+    height: 8px;
+    width: 100%;
+  }
+  .banner-art   { background: linear-gradient(90deg, #c44b2b, #e07a5f); }
+  .banner-tech  { background: linear-gradient(90deg, #1d6b6b, #2da0a0); }
+  .banner-sport { background: linear-gradient(90deg, #c9962a, #e8b84b); }
+  .banner-music { background: linear-gradient(90deg, #5b3fa6, #9272d4); }
+  .banner-career{ background: linear-gradient(90deg, #2a6b3c, #4caf72); }
+  .card-body {
+    padding: 18px 20px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    width: fit-content;
+  }
+  .cat-art    { background: var(--rust-pale); color: var(--rust-dark); }
+  .cat-tech   { background: var(--teal-pale); color: var(--teal); }
+  .cat-sport  { background: var(--gold-pale); color: #8a6010; }
+  .cat-music  { background: #ede8f8; color: #4b2fa6; }
+  .cat-career { background: #e5f5ec; color: #1e6636; }
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+  .card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .meta-row svg { flex-shrink: 0; color: var(--muted); opacity: 0.7; }
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+  .card-footer {
+    padding: 14px 20px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+    gap: 12px;
+  }
+  .seats-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .seats-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .seats-ok   { background: #2a9d5c; }
+  .seats-low  { background: var(--gold); }
+  .seats-full { background: #cc3a3a; }
+  .seats-text-ok   { color: #1e6636; }
+  .seats-text-low  { color: #8a6010; }
+  .seats-text-full { color: #cc3a3a; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--rust); color: white; }
+  .btn-primary:hover { background: var(--rust-dark); transform: translateY(-1px); }
+  .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: var(--white); color: var(--ink); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--rust); color: var(--rust); }
+  .btn-teal { background: var(--teal); color: white; }
+  .btn-teal:hover { background: #155858; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+  .btn-ghost:hover { background: var(--cream); }
+  .btn-danger { background: #fdf0f0; color: #cc3a3a; border: 1.5px solid #f5c6c6; }
+  .btn-danger:hover { background: #fce0e0; }
+  .btn-sm { padding: 6px 13px; font-size: 12.5px; }
+  .btn-lg { padding: 13px 28px; font-size: 15px; }
+
+  /* ── SCREEN 2: BOOKING ── */
+  .booking-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .booking-layout { grid-template-columns: 1fr; }
+  }
+  .booking-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .booking-card-header {
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cream);
+  }
+  .booking-card-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+  }
+  .booking-card-body { padding: 24px; }
+  .event-summary {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 78px;
+  }
+  .event-summary-banner {
+    height: 6px;
+    background: linear-gradient(90deg, var(--rust), #e07a5f);
+  }
+  .event-summary-body { padding: 22px 22px 18px; }
+  .event-summary h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    font-weight: 400;
+    margin-bottom: 14px;
+    line-height: 1.3;
+  }
+  .summary-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    margin-bottom: 10px;
+  }
+  .summary-row svg { margin-top: 2px; flex-shrink: 0; color: var(--muted); }
+  .summary-label { font-weight: 500; color: var(--ink); }
+  .summary-val { color: var(--muted); font-weight: 300; }
+  .summary-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .form-group { margin-bottom: 18px; }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+  .form-label span { color: var(--rust); }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.18s, background 0.18s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--teal);
+    background: var(--white);
+  }
+  .form-input[readonly] { color: var(--muted); background: #f0ede8; cursor: default; }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .form-hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* Success overlay */
+  .success-overlay {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+    gap: 16px;
+  }
+  .success-overlay.show { display: flex; animation: fadeIn 0.35s ease; }
+  .success-icon {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: #e5f5ec;
+    display: flex; align-items: center; justify-content: center;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.4); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .success-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .success-msg { font-size: 14px; color: var(--muted); max-width: 320px; font-weight: 300; line-height: 1.6; }
+  .booking-ref {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── SCREEN 3: ADMIN ── */
+  .admin-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .admin-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+  }
+  .table-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .data-table thead {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .data-table th {
+    padding: 13px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .data-table td {
+    padding: 13px 16px;
+    font-size: 13.5px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+  .data-table tbody tr { transition: background 0.15s; }
+  .data-table tbody tr:hover { background: var(--cream); }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .badge-active { background: #e5f5ec; color: #1e6636; }
+  .badge-full   { background: #fdf0f0; color: #cc3a3a; }
+  .badge-past   { background: #f0ede8; color: var(--muted); }
+  .actions-cell { display: flex; align-items: center; gap: 8px; }
+  .stats-link {
+    font-size: 12.5px;
+    color: var(--teal);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+  .stats-link:hover { color: var(--rust); }
+
+  /* Modal */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,25,35,0.55);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    backdrop-filter: blur(3px);
+  }
+  .modal-backdrop.open { display: flex; animation: fadeIn 0.2s; }
+  .modal {
+    background: var(--white);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+    animation: slideUp 0.25s cubic-bezier(0.34,1.2,0.64,1);
+  }
+  @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-header {
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-header h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+  }
+  .modal-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .modal-close:hover { background: var(--rust-pale); color: var(--rust); border-color: var(--rust); }
+  .modal-body { padding: 24px; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    background: var(--cream);
+    border-radius: 0 0 16px 16px;
+  }
+
+  /* Stats panel */
+  .stats-modal { max-width: 560px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .stat-lbl { font-size: 11.5px; color: var(--muted); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 4px; }
+  .progress-bar-wrap { margin-bottom: 16px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .progress-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .fill-green  { background: linear-gradient(90deg, #2a9d5c, #4caf72); }
+  .fill-orange { background: linear-gradient(90deg, var(--gold), #e8b84b); }
+
+  /* Delete confirm */
+  .confirm-modal { max-width: 400px; }
+  .confirm-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: #fdf0f0;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+    color: #cc3a3a;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34,1.2,0.64,1);
+    max-width: 320px;
+  }
+  .toast.show { transform: none; opacity: 1; }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: #4caf72; flex-shrink: 0; }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .breadcrumb a { color: var(--teal); text-decoration: none; cursor: pointer; font-weight: 500; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb-sep { color: var(--border); }
+
+  /* Empty state */
+  .empty-state {
+    padding: 60px 24px;
+    text-align: center;
+    color: var(--muted);
+  }
+  .empty-state svg { opacity: 0.3; margin-bottom: 16px; }
+  .empty-state h3 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; color: var(--ink); margin-bottom: 6px; }
+  .empty-state p { font-size: 13.5px; font-weight: 300; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">N</div>
+    <span class="nav-title">NUST <span>EventBook</span></span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showScreen('browse')">Browse Events</button>
+    <button class="nav-tab" onclick="showScreen('book')">Book Event</button>
+    <button class="nav-tab" onclick="showScreen('admin')">Admin Panel</button>
+  </div>
+  <div class="nav-user">
+    <div class="nav-avatar">JS</div>
+    <span>John Shilongo</span>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCREEN 1: BROWSE EVENTS                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="screen active" id="screen-browse">
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <h1>Upcoming Events</h1>
+        <p>Discover and book campus events at NUST</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:13px;color:var(--muted);">6 events available</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" type="text" placeholder="Search events…" oninput="filterCards(this.value)">
+      </div>
+      <select class="filter-select">
+        <option>All Categories</option>
+        <option>Technology</option>
+        <option>Arts &amp; Culture</option>
+        <option>Sports</option>
+        <option>Career</option>
+        <option>Music</option>
+      </select>
+      <select class="filter-select">
+        <option>Any Date</option>
+        <option>This Week</option>
+        <option>This Month</option>
+      </select>
+    </div>
+
+    <div class="events-grid" id="events-grid">
+
+      <!-- Card 1 -->
+      <div class="event-card" data-title="NUST Tech Expo 2025">
+        <div class="card-banner banner-tech"></div>
+        <div class="card-body">
+          <span class="card-category cat-tech">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Technology
+          </span>
+          <div class="card-title">NUST Tech Expo 2025</div>
+          <div class="card-meta">
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Wednesday, 19 March 2025 · 09:00–17:00
+            </div>
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Innovation Hub, Block C
+            </div>
+          </div>
+          <div class="card-desc">Showcase of student and staff innovations. Live demos, panel discussions, and networking sessions with industry partners.</div>
+        </div>
+        <div class="card-footer">
+          <div class="seats-badge">
+            <div class="seats-dot seats-ok"></div>
+            <span class="seats-text-ok">142 seats available</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="goBook('NUST Tech Expo 2025','Wed 19 Mar · 09:00','Innovation Hub, Block C','142')">Book Now</button>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="event-card" data-title="Cultural Gala Night">
+        <div class="card-banner banner-art"></div>
+        <div class="card-body">
+          <span class="card-category cat-art">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            Arts &amp; Culture
+          </span>
+          <div class="card-title">Cultural Gala Night</div>
+          <div class="card-meta">
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Friday, 21 March 2025 · 18:00–22:00
+            </div>
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Main Auditorium
+            </div>
+          </div>
+          <div class="card-desc">A celebration of Namibia's diverse cultures with traditional performances, food stalls, and fashion showcases.</div>
+        </div>
+        <div class="card-footer">
+          <div class="seats-badge">
+            <div class="seats-dot seats-low"></div>
+            <span class="seats-text-low">18 seats left</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="goBook('Cultural Gala Night','Fri 21 Mar · 18:00','Main Auditorium','18')">Book Now</button>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="event-card" data-title="Inter-Faculty Football Tournament">
+        <div class="card-banner banner-sport"></div>
+        <div class="card-body">
+          <span class="card-category cat-sport">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg>
+            Sports
+          </span>
+          <div class="card-title">Inter-Faculty Football Tournament</div>
+          <div class="card-meta">
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Saturday, 22 March 2025 · 08:00–17:00
+            </div>
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              NUST Sports Complex
+            </div>
+          </div>
+          <div class="card-desc">Annual tournament pitting faculties against each other. Spectators welcome — cheer your faculty to glory!</div>
+        </div>
+        <div class="card-footer">
+          <div class="seats-badge">
+            <div class="seats-dot seats-ok"></div>
+            <span class="seats-text-ok">300 seats available</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="goBook('Inter-Faculty Football Tournament','Sat 22 Mar · 08:00','NUST Sports Complex','300')">Book Now</button>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="event-card" data-title="Graduate Careers Fair">
+        <div class="card-banner banner-career"></div>
+        <div class="card-body">
+          <span class="card-category cat-career">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Career
+          </span>
+          <div class="card-title">Graduate Careers Fair</div>
+          <div class="card-meta">
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Tuesday, 25 March 2025 · 10:00–15:00
+            </div>
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Exhibition Hall, Block A
+            </div>
+          </div>
+          <div class="card-desc">Meet 40+ Namibian and regional employers. Bring your CV. Open to all final-year and postgraduate students.</div>
+        </div>
+        <div class="card-footer">
+          <div class="seats-badge">
+            <div class="seats-dot seats-ok"></div>
+            <span class="seats-text-ok">85 seats available</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="goBook('Graduate Careers Fair','Tue 25 Mar · 10:00','Exhibition Hall, Block A','85')">Book Now</button>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="event-card" data-title="Jazz &amp; Acoustic Evening">
+        <div class="card-banner banner-music"></div>
+        <div class="card-body">
+          <span class="card-category cat-music">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            Music
+          </span>
+          <div class="card-title">Jazz &amp; Acoustic Evening</div>
+          <div class="card-meta">
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Thursday, 27 March 2025 · 19:00–22:00
+            </div>
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              The Commons, Block D
+            </div>
+          </div>
+          <div class="card-desc">Relax with live jazz and acoustic performances by NUST student musicians. Light refreshments provided.</div>
+        </div>
+        <div class="card-footer">
+          <div class="seats-badge">
+            <div class="seats-dot seats-full"></div>
+            <span class="seats-text-full">Fully booked</span>
+          </div>
+          <button class="btn btn-ghost btn-sm" disabled>Fully Booked</button>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="event-card" data-title="AI &amp; Data Science Workshop">
+        <div class="card-banner banner-tech"></div>
+        <div class="card-body">
+          <span class="card-category cat-tech">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Technology
+          </span>
+          <div class="card-title">AI &amp; Data Science Workshop</div>
+          <div class="card-meta">
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Saturday, 29 March 2025 · 09:00–16:00
+            </div>
+            <div class="meta-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Computer Lab 3, Block B
+            </div>
+          </div>
+          <div class="card-desc">Hands-on introduction to machine learning with Python. Laptops required. Limited to 30 participants.</div>
+        </div>
+        <div class="card-footer">
+          <div class="seats-badge">
+            <div class="seats-dot seats-low"></div>
+            <span class="seats-text-low">7 seats left</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="goBook('AI &amp; Data Science Workshop','Sat 29 Mar · 09:00','Computer Lab 3, Block B','7')">Book Now</button>
+        </div>
+      </div>
+
+    </div><!-- /events-grid -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCREEN 2: BOOK EVENT                                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-book">
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <h1>Book Event</h1>
+        <p>Complete your booking details below</p>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="breadcrumb">
+      <a onclick="showScreen('browse')">Browse Events</a>
+      <span class="breadcrumb-sep">›</span>
+      <span id="breadcrumb-event">Book Event</span>
+    </div>
+
+    <div class="booking-layout">
+      <!-- Form -->
+      <div>
+        <div class="booking-card" id="booking-form-card">
+          <div class="booking-card-header">
+            <h2>Your Details</h2>
+            <p style="font-size:13px;color:var(--muted);margin-top:4px;font-weight:300;">Review your pre-filled details and confirm your seat</p>
+          </div>
+          <div class="booking-card-body" id="booking-form-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name <span>*</span></label>
+                <input class="form-input" type="text" value="John Shilongo" readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Student Number <span>*</span></label>
+                <input class="form-input" type="text" value="22COMD01234" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address <span>*</span></label>
+              <input class="form-input" type="email" value="john.shilongo@nust.na" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Faculty / Programme</label>
+              <input class="form-input" type="text" value="Faculty of Computing and Informatics – BSc CS (Year 3)" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Number of Seats</label>
+              <select class="form-select">
+                <option>1 seat (for me)</option>
+                <option>2 seats</option>
+                <option>3 seats</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Special Requirements</label>
+              <textarea class="form-textarea" placeholder="e.g. wheelchair access, dietary restrictions, etc."></textarea>
+              <div class="form-hint">Optional — leave blank if none</div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px;">
+              <button class="btn btn-primary btn-lg" onclick="confirmBooking()" style="flex:1;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Confirm Booking
+              </button>
+              <button class="btn btn-secondary" onclick="showScreen('browse')">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Success state (hidden by default) -->
+          <div class="success-overlay" id="success-overlay">
+            <div class="success-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2a9d5c" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="success-title">Booking Confirmed!</div>
+            <div class="success-msg">Your seat has been reserved. A confirmation has been sent to your NUST email address.</div>
+            <div class="booking-ref" id="booking-ref">BK–20250319–7842</div>
+            <div style="font-size:12px;color:var(--muted);">Keep this reference number for check-in</div>
+            <div style="display:flex;gap:10px;margin-top:8px;">
+              <button class="btn btn-teal" onclick="showScreen('browse')">Browse More Events</button>
+              <button class="btn btn-secondary" onclick="resetBooking()">Book Another</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event summary sidebar -->
+      <div>
+        <div class="event-summary">
+          <div class="event-summary-banner"></div>
+          <div class="event-summary-body">
+            <p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">You are booking</p>
+            <h3 id="summary-title">NUST Tech Expo 2025</h3>
+            <div class="summary-row">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <div><div class="summary-label">Date &amp; Time</div><div class="summary-val" id="summary-date">Wed 19 Mar · 09:00</div></div>
+            </div>
+            <div class="summary-row">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <div><div class="summary-label">Venue</div><div class="summary-val" id="summary-venue">Innovation Hub, Block C</div></div>
+            </div>
+            <div class="summary-row">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <div><div class="summary-label">Seats Available</div><div class="summary-val" id="summary-seats">142 seats</div></div>
+            </div>
+            <hr class="summary-divider">
+            <div style="font-size:12.5px;color:var(--muted);font-weight:300;line-height:1.6;">
+              Booking is free. Your seat will be held until 30 minutes before the event starts.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCREEN 3: ADMIN PANEL                                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-admin">
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <h1>Manage Events</h1>
+        <p>Create, edit and monitor all campus events</p>
+      </div>
+      <button class="btn btn-primary" onclick="openCreateModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create New Event
+      </button>
+    </div>
+  </div>
+  <div class="container">
+    <!-- Stats summary row -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
+      <div class="stat-card">
+        <div class="stat-num">6</div>
+        <div class="stat-lbl">Total Events</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">847</div>
+        <div class="stat-lbl">Total Bookings</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">5</div>
+        <div class="stat-lbl">Active Events</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">1</div>
+        <div class="stat-lbl">Fully Booked</div>
+      </div>
+    </div>
+
+    <div class="admin-toolbar">
+      <div class="admin-search-wrap" style="position:relative;">
+        <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" style="padding-left:36px;" type="text" placeholder="Search events…">
+      </div>
+      <select class="filter-select">
+        <option>All Status</option>
+        <option>Active</option>
+        <option>Fully Booked</option>
+        <option>Past</option>
+      </select>
+    </div>
+
+    <div class="table-card">
+      <table class="data-table" id="admin-table">
+        <thead>
+          <tr>
+            <th>Event Name</th>
+            <th>Date &amp; Time</th>
+            <th>Venue</th>
+            <th>Bookings</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-event="NUST Tech Expo 2025">
+            <td><strong>NUST Tech Expo 2025</strong></td>
+            <td>19 Mar 2025 · 09:00</td>
+            <td>Innovation Hub, Block C</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span>58 / 200</span>
+                <div style="width:60px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+                  <div style="width:29%;height:100%;background:#2a9d5c;border-radius:3px;"></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="status-badge badge-active">● Active</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn btn-secondary btn-sm" onclick="openEditModal('NUST Tech Expo 2025')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Edit
+                </button>
+                <button class="stats-link" onclick="openStatsModal('NUST Tech Expo 2025', 58, 200)">View Stats</button>
+                <button class="btn btn-danger btn-sm" onclick="openDeleteModal('NUST Tech Expo 2025')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr data-event="Cultural Gala Night">
+            <td><strong>Cultural Gala Night</strong></td>
+            <td>21 Mar 2025 · 18:00</td>
+            <td>Main Auditorium</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span>182 / 200</span>
+                <div style="width:60px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+                  <div style="width:91%;height:100%;background:#c9962a;border-radius:3px;"></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="status-badge badge-active">● Active</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn btn-secondary btn-sm" onclick="openEditModal('Cultural Gala Night')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Edit
+                </button>
+                <button class="stats-link" onclick="openStatsModal('Cultural Gala Night', 182, 200)">View Stats</button>
+                <button class="btn btn-danger btn-sm" onclick="openDeleteModal('Cultural Gala Night')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr data-event="Inter-Faculty Football Tournament">
+            <td><strong>Inter-Faculty Football Tournament</strong></td>
+            <td>22 Mar 2025 · 08:00</td>
+            <td>NUST Sports Complex</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span>100 / 400</span>
+                <div style="width:60px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+                  <div style="width:25%;height:100%;background:#2a9d5c;border-radius:3px;"></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="status-badge badge-active">● Active</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn btn-secondary btn-sm" onclick="openEditModal('Inter-Faculty Football Tournament')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Edit
+                </button>
+                <button class="stats-link" onclick="openStatsModal('Inter-Faculty Football Tournament', 100, 400)">View Stats</button>
+                <button class="btn btn-danger btn-sm" onclick="openDeleteModal('Inter-Faculty Football Tournament')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr data-event="Graduate Careers Fair">
+            <td><strong>Graduate Careers Fair</strong></td>
+            <td>25 Mar 2025 · 10:00</td>
+            <td>Exhibition Hall, Block A</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span>215 / 300</span>
+                <div style="width:60px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+                  <div style="width:72%;height:100%;background:#2a9d5c;border-radius:3px;"></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="status-badge badge-active">● Active</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn btn-secondary btn-sm" onclick="openEditModal('Graduate Careers Fair')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Edit
+                </button>
+                <button class="stats-link" onclick="openStatsModal('Graduate Careers Fair', 215, 300)">View Stats</button>
+                <button class="btn btn-danger btn-sm" onclick="openDeleteModal('Graduate Careers Fair')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr data-event="Jazz &amp; Acoustic Evening">
+            <td><strong>Jazz &amp; Acoustic Evening</strong></td>
+            <td>27 Mar 2025 · 19:00</td>
+            <td>The Commons, Block D</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span>120 / 120</span>
+                <div style="width:60px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+                  <div style="width:100%;height:100%;background:#cc3a3a;border-radius:3px;"></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="status-badge badge-full">● Full</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn btn-secondary btn-sm" onclick="openEditModal('Jazz &amp; Acoustic Evening')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Edit
+                </button>
+                <button class="stats-link" onclick="openStatsModal('Jazz &amp; Acoustic Evening', 120, 120)">View Stats</button>
+                <button class="btn btn-danger btn-sm" onclick="openDeleteModal('Jazz &amp; Acoustic Evening')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr data-event="AI &amp; Data Science Workshop">
+            <td><strong>AI &amp; Data Science Workshop</strong></td>
+            <td>29 Mar 2025 · 09:00</td>
+            <td>Computer Lab 3, Block B</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span>23 / 30</span>
+                <div style="width:60px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+                  <div style="width:77%;height:100%;background:#c9962a;border-radius:3px;"></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="status-badge badge-active">● Active</span></td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn btn-secondary btn-sm" onclick="openEditModal('AI &amp; Data Science Workshop')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Edit
+                </button>
+                <button class="stats-link" onclick="openStatsModal('AI &amp; Data Science Workshop', 23, 30)">View Stats</button>
+                <button class="btn btn-danger btn-sm" onclick="openDeleteModal('AI &amp; Data Science Workshop')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MODALS                                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<!-- Create / Edit Event Modal -->
+<div class="modal-backdrop" id="event-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Create New Event</h3>
+      <button class="modal-close" onclick="closeModal('event-modal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Event Name <span>*</span></label>
+        <input class="form-input" type="text" id="modal-event-name" placeholder="e.g. NUST Research Symposium">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" placeholder="Brief description of the event…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date <span>*</span></label>
+          <input class="form-input" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time <span>*</span></label>
+          <input class="form-input" type="time">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Venue <span>*</span></label>
+        <input class="form-input" type="text" placeholder="e.g. Main Auditorium">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Capacity <span>*</span></label>
+          <input class="form-input" type="number" placeholder="e.g. 200">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select">
+            <option>Technology</option>
+            <option>Arts &amp; Culture</option>
+            <option>Sports</option>
+            <option>Career</option>
+            <option>Music</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('event-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvent()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="modal-save-label">Create Event</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Modal -->
+<div class="modal-backdrop" id="stats-modal">
+  <div class="modal stats-modal">
+    <div class="modal-header">
+      <h3 id="stats-title">Event Statistics</h3>
+      <button class="modal-close" onclick="closeModal('stats-modal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-booked">—</div>
+          <div class="stat-lbl">Booked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-remaining">—</div>
+          <div class="stat-lbl">Remaining</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-pct">—</div>
+          <div class="stat-lbl">Fill Rate</div>
+        </div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-label">
+          <span>Booking progress</span>
+          <span id="stat-progress-label">0 / 0</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill fill-green" id="stat-progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.7;">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+          <span>Computing &amp; Informatics</span><span style="font-weight:600;color:var(--ink);" id="s1">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+          <span>Engineering &amp; IT</span><span style="font-weight:600;color:var(--ink);" id="s2">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+          <span>Natural Resources &amp; Spatial Sciences</span><span style="font-weight:600;color:var(--ink);" id="s3">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;">
+          <span>Other Faculties</span><span style="font-weight:600;color:var(--ink);" id="s4">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('stats-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-backdrop" id="delete-modal">
+  <div class="modal confirm-modal">
+    <div class="modal-header">
+      <h3>Delete Event</h3>
+      <button class="modal-close" onclick="closeModal('delete-modal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <p style="font-size:15px;font-weight:500;margin-bottom:8px;">Are you sure you want to delete <strong id="delete-event-name"></strong>?</p>
+      <p style="font-size:13.5px;color:var(--muted);font-weight:300;line-height:1.6;">This will permanently remove the event and cancel all existing bookings. This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="deleteEvent()" style="background:#cc3a3a;color:white;border-color:#cc3a3a;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Delete Event
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <span id="toast-msg">Event saved successfully</span>
+</div>
+
+<script>
+  let currentDeleteTarget = null;
+  let isEditMode = false;
+
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    const tabs = document.querySelectorAll('.nav-tab');
+    const map = { browse: 0, book: 1, admin: 2 };
+    tabs[map[name]].classList.add('active');
+  }
+
+  function goBook(title, date, venue, seats) {
+    document.getElementById('summary-title').textContent = title;
+    document.getElementById('summary-date').textContent = date;
+    document.getElementById('summary-venue').textContent = venue;
+    document.getElementById('summary-seats').textContent = seats + ' seats';
+    document.getElementById('breadcrumb-event').textContent = title;
+    resetBooking();
+    showScreen('book');
+  }
+
+  function confirmBooking() {
+    const ref = 'BK–' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '–' + Math.floor(1000+Math.random()*9000);
+    document.getElementById('booking-ref').textContent = ref;
+    document.getElementById('booking-form-body').style.display = 'none';
+    document.getElementById('success-overlay').classList.add('show');
+  }
+
+  function resetBooking() {
+    document.getElementById('booking-form-body').style.display = 'block';
+    document.getElementById('success-overlay').classList.remove('show');
+  }
+
+  function filterCards(query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('.event-card').forEach(card => {
+      const title = card.dataset.title.toLowerCase();
+      card.style.display = title.includes(q) ? '' : 'none';
+    });
+  }
+
+  function openCreateModal() {
+    isEditMode = false;
+    document.getElementById('modal-title').textContent = 'Create New Event';
+    document.getElementById('modal-save-label').textContent = 'Create Event';
+    document.getElementById('modal-event-name').value = '';
+    openModal('event-modal');
+  }
+
+  function openEditModal(name) {
+    isEditMode = true;
+    document.getElementById('modal-title').textContent = 'Edit Event';
+    document.getElementById('modal-save-label').textContent = 'Save Changes';
+    document.getElementById('modal-event-name').value = name;
+    openModal('event-modal');
+  }
+
+  function saveEvent() {
+    closeModal('event-modal');
+    showToast(isEditMode ? 'Event updated successfully' : 'New event created successfully');
+  }
+
+  function openStatsModal(name, booked, capacity) {
+    const remaining = capacity - booked;
+    const pct = Math.round((booked / capacity) * 100);
+    document.getElementById('stats-title').textContent = name + ' — Statistics';
+    document.getElementById('stat-booked').textContent = booked;
+    document.getElementById('stat-remaining').textContent = remaining;
+    document.getElementById('stat-pct').textContent = pct + '%';
+    document.getElementById('stat-progress-label').textContent = booked + ' / ' + capacity;
+    const bar = document.getElementById('stat-progress-bar');
+    bar.style.width = '0%';
+    bar.className = 'progress-fill ' + (pct >= 90 ? 'fill-orange' : 'fill-green');
+    setTimeout(() => bar.style.width = pct + '%', 80);
+    // Faculty breakdown (simulated)
+    const f1 = Math.round(booked * 0.35);
+    const f2 = Math.round(booked * 0.28);
+    const f3 = Math.round(booked * 0.22);
+    const f4 = booked - f1 - f2 - f3;
+    document.getElementById('s1').textContent = f1 + ' bookings';
+    document.getElementById('s2').textContent = f2 + ' bookings';
+    document.getElementById('s3').textContent = f3 + ' bookings';
+    document.getElementById('s4').textContent = f4 + ' bookings';
+    openModal('stats-modal');
+  }
+
+  function openDeleteModal(name) {
+    currentDeleteTarget = name;
+    document.getElementById('delete-event-name').textContent = '"' + name + '"';
+    openModal('delete-modal');
+  }
+
+  function deleteEvent() {
+    const rows = document.querySelectorAll('#admin-table tbody tr');
+    rows.forEach(row => {
+      if (row.dataset.event === currentDeleteTarget) {
+        row.style.transition = 'opacity 0.3s, transform 0.3s';
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(20px)';
+        setTimeout(() => row.remove(), 300);
+      }
+    });
+    closeModal('delete-modal');
+    showToast('Event "' + currentDeleteTarget + '" deleted');
+    currentDeleteTarget = null;
+  }
+
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  // Close modal on backdrop click
+  document.querySelectorAll('.modal-backdrop').forEach(bd => {
+    bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); });
+  });
+
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>
